@@ -51,7 +51,7 @@ const ForgotPassword = () => {
                             value={email}
                             placeholder="Enter your registered email"
                             className={`w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition ${error && "border-red-500"}`}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(e) => {setEmail(e.target.value), setError("")}}
                         />
                         {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
                     </div>

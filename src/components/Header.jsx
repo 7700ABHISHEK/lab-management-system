@@ -33,7 +33,7 @@ const Header = () => {
                             <Link to={"/"} className="text-gray-700 hover:text-blue-600">
                                 Dashboard
                             </Link>
-                            <Link to={"/"} className="text-gray-700 hover:text-blue-600">
+                            <Link to={"/lab-table"} className="text-gray-700 hover:text-blue-600">
                                 Labs
                             </Link>
                             <Link to={"/"} className="text-gray-700 hover:text-blue-600">

@@ -22,23 +22,7 @@ const AuthContextProvider = ({ children }) => {
         try {
             return await signInWithEmailAndPassword(auth, email, password);
         } catch (error) {
-            switch (error.code) {
-                case "auth/user-not-found":
-                    toast.error("No account found with this email.");
-                    break;
-                case "auth/wrong-password":
-                    toast.error("Incorrect password. Try again.");
-                    break;
-                case "auth/invalid-email":
-                    toast.error("Invalid email format.");
-                    break;
-                case "auth/user-disabled":
-                    toast.error("This account has been disabled.");
-                    break;
-                default:
-                    toast.error("Login failed. Please try again.");
-            }
-            throw error;
+            toast.error("Something Went Wrong...");
         }
     };
 

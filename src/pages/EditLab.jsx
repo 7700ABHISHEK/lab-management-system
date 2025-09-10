@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { LabContext } from "../context/LabContextProvider";
 import { toast } from "react-toastify";
 
-const AddLab = () => {
+const EditLab = () => {
     const [labData, setLabData] = useState({
         name: "",
         location: "",
@@ -11,9 +11,24 @@ const AddLab = () => {
     });
     const [errors, setErrors] = useState({})
 
+    const { id } = useParams();
     const navigate = useNavigate()
 
-    const { addLab, labs} = useContext(LabContext);
+    const { addLab, labs, editId } = useContext(LabContext);
+
+    useEffect(() => {
+        if (id && labs.length > 0) {
+            const labEdit = labs.find((lab) => lab.id === id);
+            if (labEdit) {
+                setLabData({
+                    name: labEdit.name || "",
+                    location: labEdit.location || "",
+                    capacity: labEdit.capacity || ""
+                });
+            }
+        }
+    }, [id, labs]);
+
 
 
     const handleChange = (e) => {
@@ -34,7 +49,7 @@ const AddLab = () => {
             validationError.location = "Enter Valid Location...";
         }
 
-        if (labData.capacity.trim() == '') {
+        if (labData.capacity == '') {
             validationError.capacity = "Enter Valid Capacity...";
         }
 
@@ -60,7 +75,7 @@ const AddLab = () => {
         <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="w-full max-w-2xl bg-white shadow-lg rounded-2xl p-8 border border-gray-200">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-                    Add New Lab
+                    Edit Lab
                 </h1>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -134,7 +149,7 @@ const AddLab = () => {
                             type="submit"
                             className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
                         >
-                            Add Lab
+                            Update Lab
                         </button>
                     </div>
                 </form>
@@ -143,4 +158,4 @@ const AddLab = () => {
     );
 };
 
-export default AddLab;
+export default EditLab;

@@ -36,7 +36,7 @@ const Login = () => {
         if (Object.keys(validationError).length > 0) return;
 
         try {
-            const res = await handleLogin(input.email, input.password);
+            await handleLogin(input.email, input.password);
             navigate("/")
             toast.success("Logged in successfully");
         } catch (error){

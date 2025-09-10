@@ -10,15 +10,35 @@ const ChangePassword = () => {
         newPassword: "",
         confirmPassword: "",
     });
+    const [errors, setErrors] = useState({})
 
     const navigate = useNavigate()
 
     const handleChange = (e) => {
-        setPasswords({ ...passwords, [e.target.name]: e.target.value });
+        setPasswords({ ...passwords, [e.target.id]: e.target.value });
+        setErrors({...errors, [e.target.id]: ""})
     };
 
     const handleChangePassword = async (e) => {
         e.preventDefault();
+
+        const validationError = {};
+
+        if (passwords.currentPassword.trim() == '') {
+            validationError.currentPassword = "Enter Valid currentPassword...";
+        }
+
+        if (passwords.newPassword.trim() == '' && passwords.newPassword.length < 8) {
+            validationError.newPassword = "Enter Valid newPassword...";
+        }
+
+        if (passwords.confirmPassword.trim() == '' && passwords.confirmPassword.length < 8) {
+            validationError.confirmPassword = "Enter Valid confirmPassword...";
+        }
+
+        setErrors(validationError);
+
+        if (Object.keys(validationError).length > 0) return;
 
         if (passwords.newPassword.length < 8) {
             toast.error("Password must be at least 8 characters long.");
@@ -34,11 +54,9 @@ const ChangePassword = () => {
             const user = auth.currentUser;
 
             if (user && user.email) {
-                // Step 1: Reauthenticate user with current password
                 const credential = EmailAuthProvider.credential(user.email, passwords.currentPassword);
                 await reauthenticateWithCredential(user, credential);
 
-                // Step 2: Update password
                 await updatePassword(user, passwords.newPassword);
                 toast.success("Password updated successfully!");
                 navigate("/login");
@@ -65,12 +83,15 @@ const ChangePassword = () => {
                         <input
                             type="password"
                             name="currentPassword"
+                            id="currentPassword"
                             value={passwords.currentPassword}
                             onChange={handleChange}
-                            required
                             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                             placeholder="Enter current password"
                         />
+                        {
+                            errors && <p className="text-red-500 font-semibold" >{errors.currentPassword}</p>
+                        }
                     </div>
 
                     <div>
@@ -78,12 +99,15 @@ const ChangePassword = () => {
                         <input
                             type="password"
                             name="newPassword"
+                            id="newPassword"
                             value={passwords.newPassword}
                             onChange={handleChange}
-                            required
                             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                             placeholder="Enter new password"
                         />
+                        {
+                            errors && <p className="text-red-500 font-semibold" >{errors.newPassword}</p>
+                        }
                     </div>
 
                     <div>
@@ -91,12 +115,15 @@ const ChangePassword = () => {
                         <input
                             type="password"
                             name="confirmPassword"
+                            id="confirmPassword"
                             value={passwords.confirmPassword}
                             onChange={handleChange}
-                            required
                             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                             placeholder="Confirm new password"
                         />
+                        {
+                            errors && <p className="text-red-500 font-semibold" >{errors.confirmPassword}</p>
+                        }
                     </div>
 
                     <button
