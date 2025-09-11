@@ -9,6 +9,7 @@ import ChangePassword from "./pages/ChangePassword"
 import AddLab from "./pages/AddLab"
 import LabTable from "./pages/LabTable"
 import EditLab from "./pages/EditLab"
+import ErrorPage from "./pages/ErrorPage"
 
 const App = () => {
 
@@ -18,6 +19,7 @@ const App = () => {
             <ToastContainer />
             <Routes>
                 <Route path="/" element={<ProtectedRoute Component={Dashboard} />} />
+                <Route path="*" element={<ErrorPage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/change-password" element={<ChangePassword />} />
