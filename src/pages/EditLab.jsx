@@ -14,7 +14,7 @@ const EditLab = () => {
     const { id } = useParams();
     const navigate = useNavigate()
 
-    const { addLab, labs, editId } = useContext(LabContext);
+    const { updateLab, labs, editId } = useContext(LabContext);
 
     useEffect(() => {
         if (id && labs.length > 0) {
@@ -36,7 +36,7 @@ const EditLab = () => {
         setErrors({ ...errors, [e.target.id]: "" })
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         const validationError = {};
@@ -57,18 +57,16 @@ const EditLab = () => {
 
         if (Object.keys(validationError).length > 0) return;
 
-        try {
-            if (labData.capacity <= 0) {
-                toast.error("Capacity should not be in negative or zero...");
-                return;
+            try {
+                if (labData.capacity <= 0) {
+                    toast.error("Capacity should not be in negative or zero...");
+                    return;
+                }
+                await updateLab(labData.name, labData.location, labData.capacity)
+                navigate("/lab-table");
+            } catch (error) {
+                toast.error("Something went Wrong");
             }
-            addLab(labData.name, labData.location, labData.capacity)
-            toast.success("Lab Added Successfully");
-            navigate("/lab-table");
-        } catch (error) {
-            toast.error("Something went Wrong");
-        }
-
     };
 
     return (

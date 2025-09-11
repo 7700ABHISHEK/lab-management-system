@@ -15,22 +15,11 @@ const LabContextProvider = ({ children }) => {
     }, [])
 
     const addLab = async (name, location, capacity) => {
-        if (editId) {
-            try {
-                await updateDoc(doc(db, "labs", editId), { name, location, capacity: Number(capacity), createdAt: new Date() })
-                fetchData();
-                toast.success("Lab Updated Successfully");
-            } catch (error) {
-                console.log("Something went wrong");
-            }
-        } else {
-            try {
-                await addDoc(collection(db, "labs"), { name, location, capacity: Number(capacity), createdAt: new Date() })
-                fetchData();
-                toast.success("Lab Updated Successfully");
-            } catch (error) {
-                console.log("Something went wrong");
-            }
+        try {
+            await addDoc(collection(db, "labs"), { name, location, capacity, createdAt: new Date() })
+            fetchData();
+        } catch (error) {
+            console.log("Something went wrong");
         }
     }
 
@@ -57,7 +46,19 @@ const LabContextProvider = ({ children }) => {
         }
     }
 
-    const data = { addLab, labs, deleteLab, setEditId, setLabs, editId };
+    const updateLab = async (name, location, capacity) => {
+        if (editId) {
+            try {
+                await updateDoc(doc(db, "labs", editId), { name, location, capacity })
+                fetchData();
+                toast.success("Lab Updated Successfully");
+            } catch (error) {
+                toast.error("Something went wrong");
+            }
+        }
+    }
+
+    const data = { addLab, labs, deleteLab, setEditId, setLabs, editId, updateLab };
 
     return (
         <LabContext.Provider value={data}>
