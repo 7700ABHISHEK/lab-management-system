@@ -53,11 +53,11 @@ const ManageStudent = () => {
         e.preventDefault()
 
         const validationError = {}
-        if (!input.name.trim()) validationError.name = "Enter valid name..."
-        if (!input.email.trim()) validationError.email = "Enter valid email..."
-        if (!input.grid.trim()) validationError.grid = "Enter valid GRID..."
-        if (!input.labId.trim()) validationError.labId = "Select valid lab..."
-        if (!input.pcId.trim()) validationError.pcId = "Select valid PC..."
+        if (input.name.trim() === '') validationError.name = "Enter valid name..."
+        if (input.email.trim() === '') validationError.email = "Enter valid email..."
+        if (input.grid.trim() === '') validationError.grid = "Enter valid GRID..."
+        if (input.labId.trim() === '') validationError.labId = "Select valid lab..."
+        if (input.pcId.trim() === '') validationError.pcId = "Select valid PC..."
 
         setErrors(validationError)
         if (Object.keys(validationError).length > 0) return

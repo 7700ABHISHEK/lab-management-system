@@ -1,71 +1,68 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import { AuthContext } from './AuthContextProvider';
-import { addDoc, collection, deleteDoc, doc, getDocs, updateDoc } from 'firebase/firestore';
-import { db } from '../config/firebase';
-import { toast } from 'react-toastify';
-import { PcContext } from './pcContextProvider';
+import React, { createContext, useState, useEffect } from "react";
+import { addDoc, collection, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { db } from "../config/firebase";
+import { toast } from "react-toastify";
 
 export const LabContext = createContext();
 
 const LabContextProvider = ({ children }) => {
-    const [labs, setLabs] = useState([]);
-    const [editId, setEditId] = useState(null);
+  const [labs, setLabs] = useState([]);
+  const [editId, setEditId] = useState(null);
 
-    useEffect(() => {
-        fetchData();
-    }, [])
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-    const addLab = async (name, location, capacity) => {
-        try {
-            await addDoc(collection(db, "labs"), { name, location, capacity, createdAt: new Date() })
-            fetchData();
-        } catch (error) {
-            console.log("Something went wrong");
-        }
+  const fetchData = async () => {
+    try {
+      const labSnapshot = await getDocs(collection(db, "labs"));
+      const data = labSnapshot.docs.map(lab => ({ id: lab.id, ...lab.data() }));
+      setLabs(data);
+    } catch (err) {
+      toast.error("Something went wrong");
     }
+  };
 
-    const fetchData = async () => {
-        try {
-            const labSnapshot = await getDocs(collection(db, "labs"))
-            const querylab = labSnapshot.docs.map((lab) => ({
-                id: lab.id,
-                ...lab.data()
-            }));
-            setLabs(querylab)
-        } catch (error) {
-            toast.error("Something went wrong")
-        }
+  const addLab = async (name, location, capacity, addActivity) => {
+    try {
+      const docRef = await addDoc(collection(db, "labs"), { name, location, capacity, createdAt: new Date() });
+      const newLab = { id: docRef.id, name, location, capacity };
+      setLabs(prev => [...prev, newLab]);
+
+      if (addActivity) addActivity(`Lab "${name}" added`, "lab");
+
+      toast.success("Lab added successfully");
+    } catch (err) {
+      toast.error("Error adding lab");
     }
+  };
 
-    const deleteLab = async (labId) => {
-        try {
-            await deleteDoc(doc(db, "labs", labId));
-            fetchData();
-            toast.success("Lab Deleted Successfully");
-        } catch (error) {
-            toast.error("Something went wrong")
-        }
+  const deleteLab = async (labId) => {
+    try {
+      await deleteDoc(doc(db, "labs", labId));
+      setLabs(prev => prev.filter(l => l.id !== labId));
+      toast.success("Lab Deleted Successfully");
+    } catch (err) {
+      toast.error("Something went wrong");
     }
+  };
 
-    const updateLab = async (name, location, capacity) => {
-        if (editId) {
-            try {
-                await updateDoc(doc(db, "labs", editId), { name, location, capacity })
-                fetchData();
-                toast.success("Lab Updated Successfully");
-            } catch (error) {
-                toast.error("Something went wrong");
-            }
-        }
+  const updateLab = async (name, location, capacity) => {
+    if (!editId) return;
+    try {
+      await updateDoc(doc(db, "labs", editId), { name, location, capacity });
+      setLabs(prev => prev.map(l => (l.id === editId ? { ...l, name, location, capacity } : l)));
+      toast.success("Lab Updated Successfully");
+    } catch (err) {
+      toast.error("Something went wrong");
     }
+  };
 
-    const data = { addLab, labs, deleteLab, setEditId, setLabs, editId, updateLab };
+  return (
+    <LabContext.Provider value={{ labs, addLab, deleteLab, updateLab, setEditId }}>
+      {children}
+    </LabContext.Provider>
+  );
+};
 
-    return (
-        <LabContext.Provider value={data}>
-            {children}
-        </LabContext.Provider>
-    )
-}
-
-export default LabContextProvider
+export default LabContextProvider;

@@ -1,27 +1,35 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
-import Header from "./components/Header"
-import Dashboard from "./pages/Dashboard"
-import Login from "./pages/Login"
-import ProtectedRoute from "./components/ProtectedRoute"
-import { ToastContainer } from "react-toastify"
-import ForgotPassword from "./pages/ForgotPassword"
-import ChangePassword from "./pages/ChangePassword"
-import AddLab from "./pages/AddLab"
-import LabTable from "./pages/LabTable"
-import EditLab from "./pages/EditLab"
-import ErrorPage from "./pages/ErrorPage"
-import PcTable from "./pages/PcTable"
-import ManagePc from "./pages/ManagePc"
-import StudentTable from "./pages/StudentTable"
-import ManageStudent from "./pages/ManageStudent"
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Header from "./components/Header";
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { ToastContainer } from "react-toastify";
+import ForgotPassword from "./pages/ForgotPassword";
+import ChangePassword from "./pages/ChangePassword";
+import AddLab from "./pages/AddLab";
+import LabTable from "./pages/LabTable";
+import EditLab from "./pages/EditLab";
+import ErrorPage from "./pages/ErrorPage";
+import PcTable from "./pages/PcTable";
+import ManagePc from "./pages/ManagePc";
+import StudentTable from "./pages/StudentTable";
+import ManageStudent from "./pages/ManageStudent";
+
+import { ActivityProvider } from "./pages/ActivityContext";
+import LabContextProvider from "./context/LabContextProvider";
+import PcContextProvider from "./context/pcContextProvider";
+import StudentContextProvider from "./context/StudentContextProvider";
 
 const App = () => {
-
-    return (
-        <BrowserRouter>
-            <Header />
-            <ToastContainer />
-            <Routes>
+  return (
+    <BrowserRouter>
+      <ActivityProvider>
+        <LabContextProvider>
+          <PcContextProvider>
+            <StudentContextProvider>
+              <Header />
+              <ToastContainer />
+              <Routes>
                 <Route path="/" element={<ProtectedRoute Component={Dashboard} />} />
                 <Route path="*" element={<ErrorPage />} />
                 <Route path="/login" element={<Login />} />
@@ -36,9 +44,13 @@ const App = () => {
                 <Route path="/lab-table" element={<ProtectedRoute Component={LabTable} />} />
                 <Route path="/student-table" element={<ProtectedRoute Component={StudentTable} />} />
                 <Route path="/pc-table" element={<ProtectedRoute Component={PcTable} />} />
-            </Routes>
-        </BrowserRouter>
-    )
-}
+              </Routes>
+            </StudentContextProvider>
+          </PcContextProvider>
+        </LabContextProvider>
+      </ActivityProvider>
+    </BrowserRouter>
+  );
+};
 
-export default App
+export default App;
