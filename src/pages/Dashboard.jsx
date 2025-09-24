@@ -37,8 +37,8 @@ const Dashboard = () => {
                     <button className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition" onClick={() => navigate("/add-lab")}>
                         <Plus size={18} /> Add Lab
                     </button>
-                    <button className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition">
-                        <Plus size={18} /> Add Computer
+                    <button className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition" onClick={() => navigate("/add-pc")}>
+                        <Plus size={18} /> Add Pcs
                     </button>
                     <button className="flex items-center gap-2 bg-pink-600 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-700 transition">
                         <Plus size={18} /> Add Student

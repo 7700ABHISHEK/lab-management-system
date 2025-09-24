@@ -21,9 +21,9 @@ const EditLab = () => {
             const labEdit = labs.find((lab) => lab.id === id);
             if (labEdit) {
                 setLabData({
-                    name: labEdit.name || "",
-                    location: labEdit.location || "",
-                    capacity: labEdit.capacity || ""
+                    name: labEdit.name,
+                    location: labEdit.location,
+                    capacity: labEdit.capacity
                 });
             }
         }

@@ -36,10 +36,10 @@ const Header = () => {
                             <Link to={"/lab-table"} className="text-gray-700 hover:text-blue-600">
                                 Labs
                             </Link>
-                            <Link to={"/"} className="text-gray-700 hover:text-blue-600">
-                                Computers
+                            <Link to={"/pc-table"} className="text-gray-700 hover:text-blue-600">
+                                Pcs
                             </Link>
-                            <Link to={"/"} className="text-gray-700 hover:text-blue-600">
+                            <Link to={"/student-table"} className="text-gray-700 hover:text-blue-600">
                                 Students
                             </Link>
                         </div>
