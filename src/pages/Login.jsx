@@ -38,8 +38,7 @@ const Login = () => {
         try {
             await handleLogin(input.email, input.password);
             navigate("/")
-            toast.success("Logged in successfully");
-        } catch (error){
+        } catch (error) {
             toast.error("Something went wrong");
         }
     };

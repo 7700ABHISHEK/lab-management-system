@@ -20,7 +20,8 @@ const AuthContextProvider = ({ children }) => {
 
     const handleLogin = async (email, password) => {
         try {
-            return await signInWithEmailAndPassword(auth, email, password);
+            await signInWithEmailAndPassword(auth, email, password);
+            toast.success("Login Successfully...");
         } catch (error) {
             toast.error("Something Went Wrong...");
         }

@@ -23,14 +23,10 @@ const LabContextProvider = ({ children }) => {
     }
   };
 
-  const addLab = async (name, location, capacity, addActivity) => {
+  const addLab = async (name, location, capacity) => {
     try {
-      const docRef = await addDoc(collection(db, "labs"), { name, location, capacity, createdAt: new Date() });
-      const newLab = { id: docRef.id, name, location, capacity };
-      setLabs(prev => [...prev, newLab]);
-
-      if (addActivity) addActivity(`Lab "${name}" added`, "lab");
-
+      await addDoc(collection(db, "labs"), { name, location, capacity, createdAt: new Date(), intialCapacity: parseInt(capacity) });
+      fetchData()
       toast.success("Lab added successfully");
     } catch (err) {
       toast.error("Error adding lab");
@@ -40,7 +36,7 @@ const LabContextProvider = ({ children }) => {
   const deleteLab = async (labId) => {
     try {
       await deleteDoc(doc(db, "labs", labId));
-      setLabs(prev => prev.filter(l => l.id !== labId));
+      fetchData();
       toast.success("Lab Deleted Successfully");
     } catch (err) {
       toast.error("Something went wrong");
@@ -51,7 +47,7 @@ const LabContextProvider = ({ children }) => {
     if (!editId) return;
     try {
       await updateDoc(doc(db, "labs", editId), { name, location, capacity });
-      setLabs(prev => prev.map(l => (l.id === editId ? { ...l, name, location, capacity } : l)));
+      fetchData();
       toast.success("Lab Updated Successfully");
     } catch (err) {
       toast.error("Something went wrong");

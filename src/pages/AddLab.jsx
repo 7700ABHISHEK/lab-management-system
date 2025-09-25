@@ -1,7 +1,6 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LabContext } from "../context/LabContextProvider";
-import { useActivity } from "./ActivityContext";
 import { toast } from "react-toastify";
 
 const AddLab = () => {
@@ -14,7 +13,6 @@ const AddLab = () => {
     const navigate = useNavigate();
 
     const { addLab } = useContext(LabContext);
-    const { addActivity } = useActivity();
 
     const handleChange = (e) => {
         setLabData({ ...labData, [e.target.id]: e.target.value });
@@ -38,10 +36,7 @@ const AddLab = () => {
         }
 
         try {
-            // Pass addActivity to addLab
-            await addLab(labData.name, labData.location, labData.capacity, addActivity);
-
-            toast.success("Lab added successfully");
+            await addLab(labData.name, labData.location, labData.capacity);
             navigate("/lab-table");
         } catch (err) {
             toast.error("Something went wrong");
