@@ -59,6 +59,8 @@ const ManageStudent = () => {
         if (input.labId.trim() === '') validationError.labId = "Select valid lab..."
         if (input.pcId.trim() === '') validationError.pcId = "Select valid PC..."
 
+        console.log(input.pcId);
+
         setErrors(validationError)
         if (Object.keys(validationError).length > 0) return
 
@@ -80,6 +82,9 @@ const ManageStudent = () => {
             }
         }
     }
+
+
+    console.log(filteredPc);
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -160,7 +165,7 @@ const ManageStudent = () => {
                         </label>
                         <select
                             id="pcId"
-                            value={input.pcId}
+                            value={input.pcId || ""}
                             onChange={handleChange}
                             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
                                        focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"

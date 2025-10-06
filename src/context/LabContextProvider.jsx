@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect } from "react";
 import { addDoc, collection, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { toast } from "react-toastify";
+import { data } from "react-router-dom";
 
 export const LabContext = createContext();
 
@@ -23,9 +24,13 @@ const LabContextProvider = ({ children }) => {
     }
   };
 
-  const addLab = async (name, location, capacity) => {
+  const addLab = async (labData) => {
+
+    const { capacity, ...data } = labData;
+    console.log(capacity);
+
     try {
-      await addDoc(collection(db, "labs"), { name, location, capacity, createdAt: new Date(), intialCapacity: parseInt(capacity) });
+      await addDoc(collection(db, "labs"), { createdAt: new Date(), ...data, initialCapacity: parseInt(capacity), capacity: parseInt(capacity) });
       fetchData()
       toast.success("Lab added successfully");
     } catch (err) {
@@ -43,10 +48,13 @@ const LabContextProvider = ({ children }) => {
     }
   };
 
-  const updateLab = async (name, location, capacity) => {
+  const updateLab = async (labData) => {
+
+    const { capacity, ...data } = labData;
+
     if (!editId) return;
     try {
-      await updateDoc(doc(db, "labs", editId), { name, location, capacity });
+      await updateDoc(doc(db, "labs", editId), {...labData, initialCapacity: parseInt(capacity)});
       fetchData();
       toast.success("Lab Updated Successfully");
     } catch (err) {
@@ -55,7 +63,7 @@ const LabContextProvider = ({ children }) => {
   };
 
   return (
-    <LabContext.Provider value={{ labs, addLab, deleteLab, updateLab, setEditId }}>
+    <LabContext.Provider value={{ labs, addLab, deleteLab, updateLab, setEditId, fetchData }}>
       {children}
     </LabContext.Provider>
   );

@@ -4,9 +4,11 @@ import { LabContext } from "../context/LabContextProvider";
 
 const LabTable = () => {
 
-    const navigate = useNavigate();
+    const navigate = useNavigate(); 
 
     const { labs, deleteLab, setEditId } = useContext(LabContext);
+
+    console.log(labs);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
@@ -31,6 +33,7 @@ const LabTable = () => {
                                         <th className="px-4 py-3 text-left font-medium">Lab Name</th>
                                         <th className="px-4 py-3 text-left font-medium">Location</th>
                                         <th className="px-4 py-3 text-left font-medium">Capacity</th>
+                                        <th className="px-4 py-3 text-left font-medium">Updated Capacity</th>
                                         <th className="px-4 py-3 text-left font-medium">Creation Date</th>
                                         <th className="px-4 py-3 text-center font-medium">Actions</th>
                                     </tr>
@@ -43,6 +46,7 @@ const LabTable = () => {
                                                 <td className="px-4 py-3">{lab.name}</td>
                                                 <td className="px-4 py-3">{lab.location}</td>
                                                 <td className="px-4 py-3">{lab.capacity}</td>
+                                                <td className="px-4 py-3">{lab.initialCapacity}</td>
                                                 <td className="px-4 py-3">{
                                                     lab.createdAt
                                                         ? (lab.createdAt.toDate ? lab.createdAt.toDate() : lab.createdAt)

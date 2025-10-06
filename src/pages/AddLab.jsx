@@ -36,7 +36,7 @@ const AddLab = () => {
         }
 
         try {
-            await addLab(labData.name, labData.location, labData.capacity);
+            await addLab(labData);
             navigate("/lab-table");
         } catch (err) {
             toast.error("Something went wrong");

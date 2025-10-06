@@ -131,7 +131,7 @@ const ManagePc = () => {
                         >
                             <option value="">Select Lab</option>
                             {labs && labs.map((lab) => (
-                                <option key={lab.id} value={lab.id}>{lab.name}</option>
+                                lab.initialCapacity > 0 && <option key={lab.id} value={lab.id}>{lab.name}</option>
                             ))}
                         </select>
                         {errors.labId && <p className="text-red-500 font-semibold">{errors.labId}</p>}

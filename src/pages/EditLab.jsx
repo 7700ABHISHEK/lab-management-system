@@ -29,7 +29,7 @@ const EditLab = () => {
         }
     }, [id, labs]);
 
-
+    const lbId = labs.find((lab) => lab.id === id)
 
     const handleChange = (e) => {
         setLabData({ ...labData, [e.target.id]: e.target.value });
@@ -57,16 +57,18 @@ const EditLab = () => {
 
         if (Object.keys(validationError).length > 0) return;
 
-            try {
-                if (labData.capacity <= 0) {
-                    toast.error("Capacity should not be in negative or zero...");
-                    return;
-                }
-                await updateLab(labData.name, labData.location, labData.capacity)
-                navigate("/lab-table");
-            } catch (error) {
-                toast.error("Something went Wrong");
+
+        try {
+
+            if (labData.capacity <= 0) {
+                toast.error("Capacity should not be in negative or zero...");
+                return;
             }
+            await updateLab(labData)
+            navigate("/lab-table");
+        } catch (error) {
+            toast.error("Something went Wrong");
+        }
     };
 
     return (
@@ -124,6 +126,7 @@ const EditLab = () => {
                             id="capacity"
                             value={labData.capacity}
                             onChange={handleChange}
+                            disabled={lbId?.capacity !== lbId?.initialCapacity}
                             placeholder="Enter Capacity"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
 
