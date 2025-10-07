@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { LabContext } from '../context/LabContextProvider'
-import { PcContext } from '../context/pcContextProvider'
 import { toast } from 'react-toastify'
+import { PcContext } from '../context/PcContextProvider'
 
 const ManagePc = () => {
     const [input, setInput] = useState({

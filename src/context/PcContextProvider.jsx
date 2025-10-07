@@ -11,10 +11,11 @@ const PcContextProvider = ({ children }) => {
     const [pcs, setPcs] = useState([]);
     const [editId, setEditId] = useState(null);
     const { fetchData } = useContext(LabContext);
-    const { students } = useContext(StudentContext);
+    const { students, fetchStudent } = useContext(StudentContext);
 
     useEffect(() => {
         fetchPc();
+        fetchStudent();
     }, [students])
 
 
@@ -49,31 +50,33 @@ const PcContextProvider = ({ children }) => {
     }
 
     const deletePc = async (id) => {
-        const pc = pcs?.find((pc) => pc.pcId === id)
-        const stu = students?.find((std) => {
-            return std.pcId === id;
-        });
-
+        const pc = pcs?.find((pc) => pc.pcId === id);
         if (!pc) {
             toast.error("PC not found");
             return;
         }
 
         try {
-            await deleteDoc(doc(db, "pcs", id));
-            await updateDoc(doc(db, "labs", pc.labId), { initialCapacity: increment(1) });
+            const affectedStudents = students.filter((std) => std.pcId === id);
 
-            if (stu) {
-                await updateDoc(doc(db, "students", stu.id), { pcId: null });
+            for (const student of affectedStudents) {
+                await updateDoc(doc(db, "students", student.id), { pcId: null });
             }
+
+            await deleteDoc(doc(db, "pcs", id));
+
+            await updateDoc(doc(db, "labs", pc.labId), { initialCapacity: increment(1) });
 
             fetchPc();
             fetchData();
-            toast.success("Pc Deleted Successfully...");
+            fetchStudent();
+            toast.success("PC deleted successfully and assigned students updated");
         } catch (error) {
-            toast.error("Something Went Wrong...");
+            console.error(error);
+            toast.error("Something went wrong while deleting PC");
         }
-    }
+    };
+
 
     const updatePc = async (input) => {
         if (!editId) {

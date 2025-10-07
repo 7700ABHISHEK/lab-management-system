@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { StudentContext } from '../context/StudentContextProvider'
 import { LabContext } from '../context/LabContextProvider'
-import { PcContext } from '../context/pcContextProvider'
+import { PcContext } from '../context/PcContextProvider'
 
 const StudentTable = () => {
     const navigate = useNavigate();
@@ -10,7 +10,6 @@ const StudentTable = () => {
     const { students, deleteStudent, setEditId } = useContext(StudentContext)
     const { labs } = useContext(LabContext)
     const { pcs } = useContext(PcContext)
-
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
             <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-2xl p-6 border border-gray-200 mt-16">

@@ -3,14 +3,13 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { LabContext } from '../context/LabContextProvider'
 import { toast } from 'react-toastify'
 import { StudentContext } from '../context/StudentContextProvider'
-import { PcContext } from '../context/pcContextProvider'
+import { PcContext } from '../context/PcContextProvider'
 
 const ManageStudent = () => {
     const [input, setInput] = useState({
         name: '', email: '', grid: '', labId: '', pcId: ''
     })
     const [errors, setErrors] = useState({})
-    const [filteredPc, setFilteredPc] = useState([])
 
     const navigate = useNavigate()
     const { id } = useParams();
@@ -20,17 +19,8 @@ const ManageStudent = () => {
     const { students, addStudent, updateStudent, editId, setEditId } = useContext(StudentContext);
 
     useEffect(() => {
-        if (input.labId) {
-            const availablePc = pcs.filter((pc) => {
-                return pc.labId === input.labId && pc.status === "available";
-            })
-            setFilteredPc(availablePc);
-        }
-    }, [input.labId, pcs])
-
-    useEffect(() => {
         if (id) {
-            const studentToEdit = students.find(std => std.id === id)
+            const studentToEdit = students.find(std => std.id === id);
             if (studentToEdit) {
                 setInput({
                     name: studentToEdit.name || '',
@@ -38,11 +28,14 @@ const ManageStudent = () => {
                     grid: studentToEdit.grid || '',
                     labId: studentToEdit.labId || '',
                     pcId: studentToEdit.pcId || ''
-                })
-                setEditId(id)
+                });
+                setEditId(id);
             }
+        } else {
+            setEditId(null);
+            setInput({name: '',email: '',grid: '',labId: '',pcId: ''});
         }
-    }, [id, students, setEditId])
+    }, [id, students, setEditId]);
 
     const handleChange = (e) => {
         setInput({ ...input, [e.target.id]: e.target.value })
@@ -58,8 +51,6 @@ const ManageStudent = () => {
         if (input.grid.trim() === '') validationError.grid = "Enter valid GRID..."
         if (input.labId.trim() === '') validationError.labId = "Select valid lab..."
         if (input.pcId.trim() === '') validationError.pcId = "Select valid PC..."
-
-        console.log(input.pcId);
 
         setErrors(validationError)
         if (Object.keys(validationError).length > 0) return
@@ -82,9 +73,6 @@ const ManageStudent = () => {
             }
         }
     }
-
-
-    console.log(filteredPc);
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -161,19 +149,32 @@ const ManageStudent = () => {
 
                     <div>
                         <label htmlFor="pcId" className="block text-gray-700 font-medium mb-2">
-                            Pc Assigned
+                            PC Assigned
                         </label>
                         <select
                             id="pcId"
                             value={input.pcId || ""}
                             onChange={handleChange}
                             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
-                                       focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+               focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                         >
                             <option value="">Select PC</option>
-                            {filteredPc && filteredPc.map((pc) => (
-                                <option key={pc.pcId} value={pc.pcId}>{pc.name}</option>
-                            ))}
+
+                            {pcs
+                                .filter(pc => pc.labId && pc.labId === input.labId)
+                                .map(pc => {
+                                    const isAssignedToOther = pc.status === "assigned" && pc.pcId !== input.pcId;
+                                    return (
+                                        <option
+                                            key={pc.pcId}
+                                            value={pc.pcId}
+                                            disabled={isAssignedToOther}
+                                            className={isAssignedToOther ? "text-gray-400" : "text-black"}
+                                        >
+                                            {pc.name} {isAssignedToOther ? "(Already Assigned)" : ""}
+                                        </option>
+                                    );
+                                })}
                         </select>
                         {errors.pcId && <p className="text-red-500 font-semibold">{errors.pcId}</p>}
                     </div>

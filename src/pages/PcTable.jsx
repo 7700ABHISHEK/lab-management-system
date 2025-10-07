@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { LabContext } from '../context/LabContextProvider';
-import { PcContext } from '../context/pcContextProvider';
+import { PcContext } from '../context/PcContextProvider';
 
 const PcTable = () => {
     const navigate = useNavigate();

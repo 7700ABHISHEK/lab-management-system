@@ -2,8 +2,8 @@ import { Monitor, Users, FlaskRound, Plus } from "lucide-react";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { LabContext } from "../context/LabContextProvider";
-import { PcContext } from "../context/pcContextProvider";
 import { StudentContext } from "../context/StudentContextProvider";
+import { PcContext } from "../context/PcContextProvider";
 
 const Dashboard = () => {
     const { labs } = useContext(LabContext);
@@ -19,7 +19,7 @@ const Dashboard = () => {
     ];
 
     return (
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 flex justify-center items-start min-h-screen py-10">
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 flex justify-center items-start min-h-screen py-28">
             <div className="container mx-auto px-4 md:px-10 p-6 border border-gray-200 shadow-md rounded-2xl">
                 <h1 className="text-3xl font-bold text-gray-800 mb-8">Dashboard</h1>
 
