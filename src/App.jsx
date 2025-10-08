@@ -15,37 +15,27 @@ import ManagePc from "./pages/ManagePc";
 import StudentTable from "./pages/StudentTable";
 import ManageStudent from "./pages/ManageStudent";
 
-import LabContextProvider from "./context/LabContextProvider";
-import PcContextProvider from "./context/pcContextProvider";
-import StudentContextProvider from "./context/StudentContextProvider";
-
 const App = () => {
   return (
     <BrowserRouter>
-      <LabContextProvider>
-        <PcContextProvider>
-          <StudentContextProvider>
-            <Header />
-            <ToastContainer />
-            <Routes>
-              <Route path="/" element={<ProtectedRoute Component={Dashboard} />} />
-              <Route path="*" element={<ErrorPage />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/change-password" element={<ChangePassword />} />
-              <Route path="/add-lab" element={<ProtectedRoute Component={AddLab} />} />
-              <Route path="/add-pc" element={<ProtectedRoute Component={ManagePc} />} />
-              <Route path="/add-student" element={<ProtectedRoute Component={ManageStudent} />} />
-              <Route path="/edit-lab/:id" element={<ProtectedRoute Component={EditLab} />} />
-              <Route path="/edit-pc/:id" element={<ProtectedRoute Component={ManagePc} />} />
-              <Route path="/edit-student/:id" element={<ProtectedRoute Component={ManageStudent} />} />
-              <Route path="/lab-table" element={<ProtectedRoute Component={LabTable} />} />
-              <Route path="/student-table" element={<ProtectedRoute Component={StudentTable} />} />
-              <Route path="/pc-table" element={<ProtectedRoute Component={PcTable} />} />
-            </Routes>
-          </StudentContextProvider>
-        </PcContextProvider>
-      </LabContextProvider>
+      <Header />
+      <ToastContainer />
+      <Routes>
+        <Route path="/" element={<ProtectedRoute Component={Dashboard} />} />
+        <Route path="*" element={<ErrorPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/change-password" element={<ChangePassword />} />
+        <Route path="/add-lab" element={<ProtectedRoute Component={AddLab} />} />
+        <Route path="/add-pc" element={<ProtectedRoute Component={ManagePc} />} />
+        <Route path="/add-student" element={<ProtectedRoute Component={ManageStudent} />} />
+        <Route path="/edit-lab/:id" element={<ProtectedRoute Component={EditLab} />} />
+        <Route path="/edit-pc/:id" element={<ProtectedRoute Component={ManagePc} />} />
+        <Route path="/edit-student/:id" element={<ProtectedRoute Component={ManageStudent} />} />
+        <Route path="/lab-table" element={<ProtectedRoute Component={LabTable} />} />
+        <Route path="/student-table" element={<ProtectedRoute Component={StudentTable} />} />
+        <Route path="/pc-table" element={<ProtectedRoute Component={PcTable} />} />
+      </Routes>
     </BrowserRouter>
   );
 };

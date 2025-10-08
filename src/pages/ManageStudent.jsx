@@ -15,7 +15,7 @@ const ManageStudent = () => {
     const { id } = useParams();
 
     const { labs } = useContext(LabContext);
-    const { pcs } = useContext(PcContext)
+    const { pcs, fetchPc } = useContext(PcContext)
     const { students, addStudent, updateStudent, editId, setEditId } = useContext(StudentContext);
 
     useEffect(() => {
@@ -35,7 +35,7 @@ const ManageStudent = () => {
             setEditId(null);
             setInput({name: '',email: '',grid: '',labId: '',pcId: ''});
         }
-    }, [id, students, setEditId]);
+    }, [id, students, editId]);
 
     const handleChange = (e) => {
         setInput({ ...input, [e.target.id]: e.target.value })
@@ -66,6 +66,7 @@ const ManageStudent = () => {
         } else {
             try {
                 await addStudent(input);
+                await fetchPc();
                 toast.success("Student added successfully");
                 navigate("/student-table");
             } catch (error) {

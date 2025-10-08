@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDocs, increment, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, increment, onSnapshot, updateDoc } from 'firebase/firestore';
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
 import { db } from '../config/firebase';
@@ -16,8 +16,19 @@ const PcContextProvider = ({ children }) => {
     useEffect(() => {
         fetchPc();
         fetchStudent();
-    }, [students])
+    }, [])
 
+    useEffect(() => {
+        const unsubscribe = onSnapshot(collection(db, "pcs"), (snapshot) => {
+            const pcList = snapshot.docs.map((pc) => ({
+                pcId: pc.id,
+                ...pc.data(),
+            }));
+            setPcs(pcList);
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     const addPc = async (pc) => {
         try {
@@ -50,22 +61,21 @@ const PcContextProvider = ({ children }) => {
     }
 
     const deletePc = async (id) => {
-        const pc = pcs?.find((pc) => pc.pcId === id);
-        if (!pc) {
-            toast.error("PC not found");
-            return;
-        }
+        const pc = pcs?.find((pc) => pc.pcId === id || pc.status != "available");
+
+        // if (!pc) {
+        //     toast.error("PC not found");
+        //     return;
+        // }
 
         try {
-            const affectedStudents = students.filter((std) => std.pcId === id);
-
-            for (const student of affectedStudents) {
-                await updateDoc(doc(db, "students", student.id), { pcId: null });
-            }
-
+            const stdnt = students.find((std) => std.pcId === id);
             await deleteDoc(doc(db, "pcs", id));
-
             await updateDoc(doc(db, "labs", pc.labId), { initialCapacity: increment(1) });
+
+            if (stdnt) {
+                await updateDoc(doc(db, "students", stdnt.id), { pcId: null });
+            }
 
             fetchPc();
             fetchData();
@@ -80,21 +90,50 @@ const PcContextProvider = ({ children }) => {
 
     const updatePc = async (input) => {
         if (!editId) {
-            toast.error("No PC selected for update")
-            return
-        };
-        try {
-            await updateDoc(doc(db, "pcs", editId), input)
-            toast.success("PC updated successfully...");
-            fetchPc();
-            setEditId(null);
-        } catch (error) {
-            toast.error("Something went wrong...");
+            toast.error("No PC selected for update");
+            return;
         }
 
-    }
+        try {
+            const pcRef = doc(db, "pcs", editId);
+            const oldPcSnap = await getDoc(pcRef);
 
-    const data = { addPc, pcs, deletePc, editId, setEditId, updatePc }
+            if (!oldPcSnap.exists()) {
+                toast.error("PC not found");
+                return;
+            }
+
+            const oldPcData = oldPcSnap.data();
+
+            if (oldPcData.status === "assigned" && input.status !== "assigned") {
+                toast.error("This PC is currently assigned and cannot be edited until unassigned.");
+                return;
+            }
+
+            if (oldPcData.labId !== input.labId) {
+                await updateDoc(doc(db, "labs", oldPcData.labId), {
+                    initialCapacity: increment(1),
+                });
+                await updateDoc(doc(db, "labs", input.labId), {
+                    initialCapacity: increment(-1),
+                });
+            }
+
+            await updateDoc(pcRef, input);
+
+            toast.success("PC updated successfully...");
+            fetchPc();
+            fetchData();
+            setEditId(null);
+        } catch (error) {
+            console.error(error);
+            toast.error("Something went wrong...");
+        }
+    };
+
+
+
+    const data = { addPc, pcs, deletePc, editId, setEditId, updatePc, fetchPc }
 
     return (
         <PcContext.Provider value={data}>

@@ -7,7 +7,7 @@ const PcTable = () => {
     const navigate = useNavigate();
 
     const { labs } = useContext(LabContext);
-    const { pcs, deletePc, setEditId } = useContext(PcContext);
+    const { pcs, deletePc, setEditId, fetchPc } = useContext(PcContext);
 
     const getPcId = (id) => {
         deletePc(id);

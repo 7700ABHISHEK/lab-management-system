@@ -107,8 +107,10 @@ const ManagePc = () => {
                             id="status"
                             value={input.status}
                             onChange={handleChange}
-                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
-                                       focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            disabled={input.status === "assigned"}
+                            className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
+               focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 
+               ${input.status === "assigned" ? "opacity-60 cursor-not-allowed" : ""}`}
                         >
                             <option value="">Select Status</option>
                             <option value="available">Available</option>
@@ -116,6 +118,7 @@ const ManagePc = () => {
                             <option value="repair">Repair</option>
                         </select>
                         {errors.status && <p className="text-red-500 font-semibold">{errors.status}</p>}
+
                     </div>
 
                     <div>
@@ -126,14 +129,17 @@ const ManagePc = () => {
                             id="labId"
                             value={input.labId}
                             onChange={handleChange}
-                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
-                                       focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            disabled={input.status === "assigned"}
+                            className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
+               focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 
+               ${input.status === "assigned" ? "opacity-60 cursor-not-allowed" : ""}`}
                         >
                             <option value="">Select Lab</option>
                             {labs && labs.map((lab) => (
                                 lab.initialCapacity > 0 && <option key={lab.id} value={lab.id}>{lab.name}</option>
                             ))}
                         </select>
+
                         {errors.labId && <p className="text-red-500 font-semibold">{errors.labId}</p>}
                     </div>
 

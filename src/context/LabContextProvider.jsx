@@ -50,11 +50,11 @@ const LabContextProvider = ({ children }) => {
 
   const updateLab = async (labData) => {
 
-    const { capacity, ...data } = labData;
+    const { capacity, initialCapacity ,...data } = labData;
 
     if (!editId) return;
     try {
-      await updateDoc(doc(db, "labs", editId), {...labData, initialCapacity: parseInt(capacity)});
+      await updateDoc(doc(db, "labs", editId), { ...labData, initialCapacity: parseInt(capacity), capacity: parseInt(capacity) });
       fetchData();
       toast.success("Lab Updated Successfully");
     } catch (err) {

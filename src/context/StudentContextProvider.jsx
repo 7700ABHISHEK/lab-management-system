@@ -1,7 +1,8 @@
 import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, updateDoc, } from "firebase/firestore";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { db } from "../config/firebase";
+import { PcContext } from "./PcContextProvider";
 
 export const StudentContext = createContext();
 
@@ -33,7 +34,6 @@ const StudentContextProvider = ({ children }) => {
                 createdAt: new Date(),
                 ...std,
             });
-
             await updateDoc(pcRef, { status: "assigned" });
 
             fetchStudent();
