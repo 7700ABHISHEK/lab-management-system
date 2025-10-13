@@ -58,7 +58,6 @@ const ManageStudent = () => {
         if (editId) {
             try {
                 await updateStudent(input);
-                toast.success("Student updated successfully");
                 navigate("/student-table")
             } catch (error) {
                 toast.error("Something went wrong");
@@ -67,7 +66,6 @@ const ManageStudent = () => {
             try {
                 await addStudent(input);
                 await fetchPc();
-                toast.success("Student added successfully");
                 navigate("/student-table");
             } catch (error) {
                 toast.error("Something went wrong");

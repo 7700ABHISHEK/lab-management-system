@@ -40,17 +40,29 @@ const LabContextProvider = ({ children }) => {
 
   const deleteLab = async (labId) => {
     try {
+      const pcsSnap = await getDocs(collection(db, "pcs"));
+      const relatedPcs = pcsSnap.docs
+        .map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }))
+        .filter((pc) => pc.labId === labId);
+
+      for (const pc of relatedPcs) {
+        const pcRef = doc(db, "pcs", pc.id);
+        await updateDoc(pcRef, { labId: null });
+      }
+
       await deleteDoc(doc(db, "labs", labId));
+
       fetchData();
-      toast.success("Lab Deleted Successfully");
+      toast.success("Lab deleted successfully. Related PCs unlinked.");
     } catch (err) {
-      toast.error("Something went wrong");
+      console.error(err);
+      toast.error("Something went wrong while deleting lab");
     }
   };
 
   const updateLab = async (labData) => {
 
-    const { capacity, initialCapacity ,...data } = labData;
+    const { capacity, initialCapacity, ...data } = labData;
 
     if (!editId) return;
     try {

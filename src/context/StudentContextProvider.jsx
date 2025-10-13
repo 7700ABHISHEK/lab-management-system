@@ -1,8 +1,7 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, updateDoc, } from "firebase/firestore";
-import { createContext, useContext, useEffect, useState } from "react";
+import {addDoc,collection,deleteDoc,doc,getDoc,getDocs,updateDoc,query,where,} from "firebase/firestore";
+import { createContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { db } from "../config/firebase";
-import { PcContext } from "./PcContextProvider";
 
 export const StudentContext = createContext();
 
@@ -13,6 +12,20 @@ const StudentContextProvider = ({ children }) => {
     useEffect(() => {
         fetchStudent();
     }, []);
+
+    const fetchStudent = async () => {
+        try {
+            const { docs } = await getDocs(collection(db, "students"));
+            const studentList = docs.map((std) => ({
+                id: std.id,
+                ...std.data(),
+            }));
+            setStudents(studentList);
+        } catch (error) {
+            console.error(error);
+            toast.error("Something went wrong while fetching students");
+        }
+    };
 
     const addStudent = async (std) => {
         try {
@@ -34,42 +47,13 @@ const StudentContextProvider = ({ children }) => {
                 createdAt: new Date(),
                 ...std,
             });
-            await updateDoc(pcRef, { status: "assigned" });
 
+            await updateDoc(pcRef, { status: "assigned" });
             fetchStudent();
+            toast.success("Student added successfully");
         } catch (error) {
             console.error(error);
             toast.error("Something went wrong while adding student");
-        }
-    };
-
-    const fetchStudent = async () => {
-        try {
-            const { docs } = await getDocs(collection(db, "students"));
-            const studentList = docs.map((std) => ({
-                id: std.id,
-                ...std.data(),
-            }));
-            setStudents(studentList);
-        } catch (error) {
-            toast.error("Something went wrong while fetching students");
-        }
-    };
-
-    const deleteStudent = async (id) => {
-        try {
-            const student = students.find((std) => std.id === id);
-
-            if (student?.pcId) {
-                await updateDoc(doc(db, "pcs", student.pcId), { status: "available" });
-            }
-
-            await deleteDoc(doc(db, "students", id));
-            fetchStudent();
-            toast.success("Student deleted successfully");
-        } catch (error) {
-            console.error(error);
-            toast.error("Something went wrong while deleting student");
         }
     };
 
@@ -82,6 +66,27 @@ const StudentContextProvider = ({ children }) => {
         try {
             const studentRef = doc(db, "students", editId);
             const oldStudent = students.find((std) => std.id === editId);
+
+            if (input.pcId) {
+                const pcRef = doc(db, "pcs", input.pcId);
+                const pcSnap = await getDoc(pcRef);
+
+                if (!pcSnap.exists()) {
+                    toast.error("Selected PC does not exist");
+                    return;
+                }
+
+                const pcData = pcSnap.data();
+                if (pcData.status === "assigned" && oldStudent.pcId !== input.pcId) {
+                    toast.error("This PC is already assigned to another student");
+                    return;
+                }
+
+                if (input.labId && pcData.labId && pcData.labId !== input.labId) {
+                    toast.error("This PC belongs to another lab");
+                    return;
+                }
+            }
 
             if (oldStudent && oldStudent.pcId !== input.pcId) {
                 if (oldStudent.pcId) {
@@ -100,18 +105,62 @@ const StudentContextProvider = ({ children }) => {
 
             await updateDoc(studentRef, input);
             fetchStudent();
+            toast.success("Student updated successfully");
         } catch (error) {
             console.error(error);
             toast.error("Something went wrong while updating student");
         }
     };
 
+    const deleteStudent = async (id) => {
+        try {
+            const student = students.find((std) => std.id === id);
+            if (student?.pcId) {
+                await updateDoc(doc(db, "pcs", student.pcId), { status: "available" });
+            }
+
+            await deleteDoc(doc(db, "students", id));
+            fetchStudent();
+            toast.success("Student deleted successfully");
+        } catch (error) {
+            console.error(error);
+            toast.error("Something went wrong while deleting student");
+        }
+    };
+
+    const deleteStudentsByPc = async (pcId) => {
+        try {
+            const q = query(collection(db, "students"), where("pcId", "==", pcId));
+            const querySnapshot = await getDocs(q);
+            for (const docSnap of querySnapshot.docs) {
+                await deleteDoc(doc(db, "students", docSnap.id));
+            }
+            fetchStudent();
+        } catch (error) {
+            console.error("Error deleting students by PC:", error);
+        }
+    };
+
+    const deleteStudentsByLab = async (labId) => {
+        try {
+            const q = query(collection(db, "students"), where("labId", "==", labId));
+            const querySnapshot = await getDocs(q);
+            for (const docSnap of querySnapshot.docs) {
+                await deleteDoc(doc(db, "students", docSnap.id));
+            }
+            fetchStudent();
+        } catch (error) {
+            console.error("Error deleting students by Lab:", error);
+        }
+    };
 
     const data = {
         addStudent,
         fetchStudent,
         deleteStudent,
         updateStudent,
+        deleteStudentsByPc,
+        deleteStudentsByLab,
         students,
         editId,
         setEditId,

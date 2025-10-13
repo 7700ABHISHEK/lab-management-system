@@ -1,9 +1,85 @@
 import { Monitor, Users, FlaskRound, Plus } from "lucide-react";
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { LabContext } from "../context/LabContextProvider";
 import { StudentContext } from "../context/StudentContextProvider";
 import { PcContext } from "../context/PcContextProvider";
+import * as d3 from "d3";
+
+const DashboardChart = ({ labs, pcs }) => {
+    const chartRef = useRef(null);
+
+    useEffect(() => {
+        if (!labs.length) return;
+
+        const data = labs.map(lab => ({
+            lab: lab.name,
+            pcs: pcs.filter(pc => pc.labId === lab.id).length
+        }));
+
+        d3.select(chartRef.current).selectAll("*").remove();
+
+        const containerWidth = chartRef.current.offsetWidth;
+        const width = containerWidth || 600;
+        const height = 300;
+        const margin = { top: 20, right: 20, bottom: 60, left: 50 };
+
+        const svg = d3
+            .select(chartRef.current)
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        const x = d3
+            .scaleBand()
+            .domain(data.map(d => d.lab))
+            .range([margin.left, width - margin.right])
+            .padding(0.3);
+
+        const y = d3
+            .scaleLinear()
+            .domain([0, d3.max(data, d => d.pcs) || 1])
+            .nice()
+            .range([height - margin.bottom, margin.top]);
+
+        svg.selectAll(".bar")
+            .data(data)
+            .join("rect")
+            .attr("class", "bar")
+            .attr("x", d => x(d.lab))
+            .attr("y", d => y(d.pcs))
+            .attr("width", x.bandwidth())
+            .attr("height", d => y(0) - y(d.pcs))
+            .attr("fill", "url(#bar-gradient)")
+            .attr("rx", 6);
+
+        const defs = svg.append("defs");
+        const gradient = defs.append("linearGradient")
+            .attr("id", "bar-gradient")
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "0%")
+            .attr("y2", "100%");
+        gradient.append("stop").attr("offset", "0%").attr("stop-color", "#4f46e5").attr("stop-opacity", 1);
+        gradient.append("stop").attr("offset", "100%").attr("stop-color", "#a78bfa").attr("stop-opacity", 1);
+
+        svg.append("g")
+            .attr("transform", `translate(0, ${height - margin.bottom})`)
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .attr("transform", "rotate(-35)")
+            .style("text-anchor", "end")
+            .style("font-weight", "500");
+
+        svg.append("g")
+            .attr("transform", `translate(${margin.left},0)`)
+            .call(d3.axisLeft(y).ticks(5))
+            .selectAll("text")
+            .style("font-weight", "500");
+    }, [labs, pcs]);
+
+    return <div ref={chartRef} className="mt-8 w-full bg-white p-4 rounded-2xl shadow-lg"></div>;
+};
 
 const Dashboard = () => {
     const { labs } = useContext(LabContext);
@@ -13,95 +89,53 @@ const Dashboard = () => {
     const navigate = useNavigate();
 
     const stats = [
-        { id: 1, title: "Labs", value: labs.length, icon: <FlaskRound className="w-8 h-8 text-indigo-600" />, color: "bg-indigo-100" },
-        { id: 2, title: "Computers", value: pcs.length, icon: <Monitor className="w-8 h-8 text-green-600" />, color: "bg-green-100" },
-        { id: 3, title: "Students", value: students.length, icon: <Users className="w-8 h-8 text-pink-600" />, color: "bg-pink-100" },
+        { id: 1, title: "Labs", value: labs.length, icon: <FlaskRound className="w-8 h-8 text-indigo-600" />, color: "from-indigo-100 to-indigo-200" },
+        { id: 2, title: "Computers", value: pcs.length, icon: <Monitor className="w-8 h-8 text-green-600" />, color: "from-green-100 to-green-200" },
+        { id: 3, title: "Students", value: students.length, icon: <Users className="w-8 h-8 text-pink-600" />, color: "from-pink-100 to-pink-200" },
     ];
 
     return (
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 flex justify-center items-start min-h-screen py-28">
-            <div className="container mx-auto px-4 md:px-10 p-6 border border-gray-200 shadow-md rounded-2xl">
-                <h1 className="text-3xl font-bold text-gray-800 mb-8">Dashboard</h1>
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex justify-center py-24">
+            <div className="container mx-auto px-4 md:px-10">
+                <h1 className="text-4xl font-extrabold text-gray-800 mb-10">Dashboard</h1>
 
-                <div className="flex flex-wrap gap-4 mb-8">
+                <div className="flex flex-wrap gap-4 mb-10">
                     <button
                         onClick={() => navigate("/add-lab")}
-                        className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition"
+                        className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-3 rounded-xl shadow-lg hover:bg-indigo-700 transition-all transform hover:-translate-y-1"
                     >
                         <Plus size={18} /> Add Lab
                     </button>
                     <button
                         onClick={() => navigate("/add-pc")}
-                        className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition"
+                        className="flex items-center gap-2 bg-green-600 text-white px-5 py-3 rounded-xl shadow-lg hover:bg-green-700 transition-all transform hover:-translate-y-1"
                     >
                         <Plus size={18} /> Add PC
                     </button>
                     <button
                         onClick={() => navigate("/add-student")}
-                        className="flex items-center gap-2 bg-pink-600 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-700 transition"
+                        className="flex items-center gap-2 bg-pink-600 text-white px-5 py-3 rounded-xl shadow-lg hover:bg-pink-700 transition-all transform hover:-translate-y-1"
                     >
                         <Plus size={18} /> Add Student
                     </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
                     {stats.map(item => (
                         <div
                             key={item.id}
-                            className="rounded-2xl shadow-md hover:shadow-lg transition bg-white border border-gray-200 p-6 flex items-center justify-between"
+                            className={`flex items-center justify-between p-6 bg-gradient-to-br ${item.color} rounded-2xl shadow-lg hover:shadow-xl transition-transform transform hover:-translate-y-1`}
                         >
                             <div>
                                 <h2 className="text-xl font-semibold text-gray-700">{item.title}</h2>
                                 <p className="text-3xl font-bold text-gray-900">{item.value}</p>
                             </div>
-                            <div className={`p-4 rounded-xl ${item.color}`}>{item.icon}</div>
+                            <div className="p-4 bg-white rounded-xl shadow-inner">{item.icon}</div>
                         </div>
                     ))}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                    <div className="rounded-2xl shadow-md bg-white border border-gray-200 p-6">
-                        <h2 className="text-xl font-semibold text-gray-700 mb-4">Recent Activity</h2>
-                        <ul className="space-y-3 text-gray-600">
-                            <li className="flex items-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition cursor-pointer">
-                                <span className="p-2 rounded-full bg-indigo-100">
-                                    <FlaskRound className="w-5 h-5 text-indigo-600" />
-                                </span>
-                                <div>
-                                    <p className="text-gray-800 font-medium">New Lab Added: Lab 5</p>
-                                    <p className="text-gray-400 text-sm">10:30 AM</p>
-                                </div>
-                            </li>
-                            <li className="flex items-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition cursor-pointer">
-                                <span className="p-2 rounded-full bg-green-100">
-                                    <Monitor className="w-5 h-5 text-green-600" />
-                                </span>
-                                <div>
-                                    <p className="text-gray-800 font-medium">10 PCs Installed in Lab 3</p>
-                                    <p className="text-gray-400 text-sm">Yesterday</p>
-                                </div>
-                            </li>
-                            <li className="flex items-center gap-2 p-3 rounded-lg hover:bg-gray-50 transition cursor-pointer">
-                                <span className="p-2 rounded-full bg-pink-100">
-                                    <Users className="w-5 h-5 text-pink-600" />
-                                </span>
-                                <div>
-                                    <p className="text-gray-800 font-medium">Student Registration: John Doe</p>
-                                    <p className="text-gray-400 text-sm">2 days ago</p>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div className="rounded-2xl shadow-md bg-white border border-gray-200 p-6">
-                        <h2 className="text-xl font-semibold text-gray-700 mb-4">Upcoming Tasks</h2>
-                        <ul className="space-y-3 text-gray-600">
-                            <li>📌 Maintenance in Lab 2</li>
-                            <li>📌 Software update for 40 computers</li>
-                            <li>📌 Student assessment results upload</li>
-                        </ul>
-                    </div>
-                </div>
+                <DashboardChart labs={labs} pcs={pcs} />
             </div>
         </div>
     );
