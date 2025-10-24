@@ -1,10 +1,10 @@
 import { Monitor, Users, FlaskRound, Plus } from "lucide-react";
-import { useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { LabContext } from "../context/LabContextProvider";
-import { StudentContext } from "../context/StudentContextProvider";
-import { PcContext } from "../context/PcContextProvider";
 import * as d3 from "d3";
+import { StudentContext } from "../context/StudentContextProvider";
+import { LabContext } from "../context/LabContextProvider";
+import { PcContext } from "../context/PcContextProvider";
+import { useContext, useEffect, useRef } from "react";
 
 const DashboardChart = ({ labs, pcs }) => {
     const chartRef = useRef(null);
