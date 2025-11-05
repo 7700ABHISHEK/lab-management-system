@@ -86,7 +86,7 @@ const StudentTable = () => {
                         </div> :
                         <div>
                             <div className="flex justify-center">
-                                <img src="public/no-lab.webp" alt="no-lab" />
+                                <img src="/no-lab.webp" alt="no-student" />
                             </div>
                             <h1 className="text-center mt-4 text-2xl font-semibold">No Student Found🙍</h1>
                         </div>
