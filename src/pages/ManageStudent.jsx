@@ -33,7 +33,7 @@ const ManageStudent = () => {
             }
         } else {
             setEditId(null);
-            setInput({name: '',email: '',grid: '',labId: '',pcId: ''});
+            setInput({ name: '', email: '', grid: '', labId: '', pcId: '' });
         }
     }, [id, students, editId]);
 
@@ -52,24 +52,24 @@ const ManageStudent = () => {
         if (input.labId.trim() === '') validationError.labId = "Select valid lab..."
         if (input.pcId.trim() === '') validationError.pcId = "Select valid PC..."
 
+        const selectedPc = pcs.find(pc => pc.pcId === input.pcId)
+        if (selectedPc && selectedPc.status === "repair") {
+            validationError.pcId = "This PC is under repair. Please select another one."
+        }
+
         setErrors(validationError)
         if (Object.keys(validationError).length > 0) return
 
-        if (editId) {
-            try {
+        try {
+            if (editId) {
                 await updateStudent(input);
-                navigate("/student-table")
-            } catch (error) {
-                toast.error("Something went wrong");
-            }
-        } else {
-            try {
+            } else {
                 await addStudent(input);
                 await fetchPc();
-                navigate("/student-table");
-            } catch (error) {
-                toast.error("Something went wrong");
             }
+            navigate("/student-table");
+        } catch (error) {
+            toast.error("Something went wrong");
         }
     }
 
@@ -155,7 +155,7 @@ const ManageStudent = () => {
                             value={input.pcId || ""}
                             onChange={handleChange}
                             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
-               focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                       focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                         >
                             <option value="">Select PC</option>
 
@@ -163,14 +163,19 @@ const ManageStudent = () => {
                                 .filter(pc => pc.labId && pc.labId === input.labId)
                                 .map(pc => {
                                     const isAssignedToOther = pc.status === "assigned" && pc.pcId !== input.pcId;
+                                    const isInRepair = pc.status === "repair"; // ✅ Check repair status
+                                    const isDisabled = isAssignedToOther || isInRepair;
+
                                     return (
                                         <option
                                             key={pc.pcId}
                                             value={pc.pcId}
-                                            disabled={isAssignedToOther}
-                                            className={isAssignedToOther ? "text-gray-400" : "text-black"}
+                                            disabled={isDisabled}
+                                            className={isDisabled ? "text-gray-400" : "text-black"}
                                         >
-                                            {pc.name} {isAssignedToOther ? "(Already Assigned)" : ""}
+                                            {pc.name}
+                                            {isAssignedToOther ? " (Already Assigned)" : ""}
+                                            {isInRepair ? " (Under Repair)" : ""}
                                         </option>
                                     );
                                 })}

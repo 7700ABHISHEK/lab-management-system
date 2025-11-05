@@ -6,84 +6,69 @@ import { PcContext } from '../context/PcContextProvider'
 
 const ManagePc = () => {
     const [input, setInput] = useState({
-        name: '', labId: '', status: ''
+        name: '',
+        labId: '',
+        status: ''
     })
     const [errors, setErrors] = useState({})
 
-
     const navigate = useNavigate()
-
-    const { labs } = useContext(LabContext);
-    const { addPc, editId, updatePc, pcs, setEditId } = useContext(PcContext);
-
-    const { id } = useParams();
+    const { labs } = useContext(LabContext)
+    const { addPc, editId, updatePc, pcs, setEditId } = useContext(PcContext)
+    const { id } = useParams()
 
     useEffect(() => {
         if (id && pcs.length > 0) {
-            const pcEdit = pcs.find((pc) => pc.pcId === id);
+            const pcEdit = pcs.find((pc) => pc.pcId === id)
             if (pcEdit) {
                 setInput({
-                    name: pcEdit.name,
-                    labId: pcEdit.labId,
-                    status: pcEdit.status
-                });
+                    name: pcEdit.name || '',
+                    labId: pcEdit.labId || '',
+                    status: pcEdit.status || ''
+                })
             }
+        } else {
+            setInput({ name: '', labId: '', status: '' })
+            setEditId(null)
         }
-    }, [id, pcs])
+    }, [id, pcs, setEditId])
 
     const handleChange = (e) => {
         setInput({ ...input, [e.target.id]: e.target.value })
-        setErrors({ ...errors, [e.target.id]: "" })
+        setErrors({ ...errors, [e.target.id]: '' })
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
 
         const validationError = {}
-
-        if (input.name.trim() === '') {
-            validationError.name = "Enter valid name..."
-        }
-        if (input.labId.trim() === '') {
-            validationError.labId = "Select valid lab..."
-        }
-        if (input.status.trim() === '') {
-            validationError.status = "Select valid status..."
-        }
+        if (input.name.trim() === '') validationError.name = 'Enter valid name...'
+        if (input.labId.trim() === '') validationError.labId = 'Select valid lab...'
+        if (input.status.trim() === '') validationError.status = 'Select valid status...'
 
         setErrors(validationError)
-
         if (Object.keys(validationError).length > 0) return
 
-        if (editId) {
-            try {
-                await updatePc(input);
-                navigate("/pc-table")
-            } catch (error) {
-                toast.error("Something went Wrong");
+        try {
+            if (editId) {
+                await updatePc(input)
+            } else {
+                await addPc(input)
             }
-        } else {
-            try {
-                await addPc(input);
-                toast.success("Pc Added Successfully");
-                navigate("/pc-table");
-
-            } catch (error) {
-                toast.error("Something went Wrong");
-            }
+            navigate('/pc-table')
+        } catch (error) {
+            toast.error('Something went wrong')
         }
-
     }
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="w-full max-w-2xl bg-white shadow-lg rounded-2xl p-8 border border-gray-200">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-                    {id ? "Edit" : "Add New"} PC
+                    {id ? 'Edit' : 'Add New'} PC
                 </h1>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
-
                     <div>
                         <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
                             PC Name
@@ -91,7 +76,7 @@ const ManagePc = () => {
                         <input
                             type="text"
                             id="name"
-                            value={input.name}
+                            value={input.name || ''}
                             onChange={handleChange}
                             placeholder="Enter PC name"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -105,12 +90,12 @@ const ManagePc = () => {
                         </label>
                         <select
                             id="status"
-                            value={input.status}
+                            value={input.status || ''}
                             onChange={handleChange}
-                            disabled={input.status === "assigned"}
+                            disabled={input.status === 'assigned'}
                             className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
-               focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 
-               ${input.status === "assigned" ? "opacity-60 cursor-not-allowed" : ""}`}
+                focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 
+                ${input.status === 'assigned' ? 'opacity-60 cursor-not-allowed' : ''}`}
                         >
                             <option value="">Select Status</option>
                             <option value="available">Available</option>
@@ -118,7 +103,6 @@ const ManagePc = () => {
                             <option value="repair">Repair</option>
                         </select>
                         {errors.status && <p className="text-red-500 font-semibold">{errors.status}</p>}
-
                     </div>
 
                     <div>
@@ -127,19 +111,24 @@ const ManagePc = () => {
                         </label>
                         <select
                             id="labId"
-                            value={input.labId}
+                            value={input.labId || ''}
                             onChange={handleChange}
-                            disabled={input.status === "assigned"}
+                            disabled={input.status === 'assigned'}
                             className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
-               focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 
-               ${input.status === "assigned" ? "opacity-60 cursor-not-allowed" : ""}`}
+                focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 
+                ${input.status === 'assigned' ? 'opacity-60 cursor-not-allowed' : ''}`}
                         >
                             <option value="">Select Lab</option>
-                            {labs && labs.map((lab) => (
-                                lab.initialCapacity > 0 && <option key={lab.id} value={lab.id}>{lab.name}</option>
-                            ))}
+                            {labs &&
+                                labs.map(
+                                    (lab) =>
+                                        lab.initialCapacity > 0 && (
+                                            <option key={lab.id} value={lab.id}>
+                                                {lab.name}
+                                            </option>
+                                        )
+                                )}
                         </select>
-
                         {errors.labId && <p className="text-red-500 font-semibold">{errors.labId}</p>}
                     </div>
 
@@ -147,18 +136,18 @@ const ManagePc = () => {
                         <button
                             type="button"
                             onClick={() => {
-                                navigate("/pc-table")
+                                navigate('/pc-table')
                                 setEditId(null)
                             }}
                             className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
                         >
-                            View PC
+                            View PCs
                         </button>
                         <button
                             type="submit"
                             className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
                         >
-                            {id ? "Update" : "Add"} PC
+                            {id ? 'Update' : 'Add'} PC
                         </button>
                     </div>
                 </form>
